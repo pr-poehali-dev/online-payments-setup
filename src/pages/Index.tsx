@@ -6,11 +6,33 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const { toast } = useToast();
+  
+  // Состояние для форм
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [registerForm, setRegisterForm] = useState({
+    fullName: '',
+    birthDate: '',
+    fsrId: '',
+    institution: '',
+    coach: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    message: ''
+  });
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
@@ -18,6 +40,93 @@ const Index = () => {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  // Обработчики форм
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginForm.email || !loginForm.password) {
+      toast({
+        title: "Ошибка",
+        description: "Заполните все поля",
+        variant: "destructive"
+      });
+      return;
+    }
+    toast({
+      title: "Вход выполнен",
+      description: "Добро пожаловать в личный кабинет!"
+    });
+    setIsRegisterOpen(false);
+  };
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Валидация
+    const required = ['fullName', 'birthDate', 'fsrId', 'institution', 'coach', 'email', 'phone', 'password', 'confirmPassword'];
+    const missing = required.filter(field => !registerForm[field as keyof typeof registerForm]);
+    
+    if (missing.length > 0) {
+      toast({
+        title: "Ошибка",
+        description: "Заполните все обязательные поля",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (registerForm.password !== registerForm.confirmPassword) {
+      toast({
+        title: "Ошибка",
+        description: "Пароли не совпадают",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (registerForm.password.length < 6) {
+      toast({
+        title: "Ошибка",
+        description: "Пароль должен содержать минимум 6 символов",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    toast({
+      title: "Регистрация успешна!",
+      description: "На вашу почту отправлено письмо для подтверждения"
+    });
+    setIsRegisterOpen(false);
+    setRegisterForm({
+      fullName: '',
+      birthDate: '',
+      fsrId: '',
+      institution: '',
+      coach: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirmPassword: ''
+    });
+  };
+
+  const handleContact = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactForm.name || !contactForm.email || !contactForm.message) {
+      toast({
+        title: "Ошибка",
+        description: "Заполните обязательные поля",
+        variant: "destructive"
+      });
+      return;
+    }
+    toast({
+      title: "Сообщение отправлено",
+      description: "Мы свяжемся с вами в ближайшее время"
+    });
+    setContactForm({ name: '', phone: '', email: '', message: '' });
   };
 
   return (
@@ -66,66 +175,142 @@ const Index = () => {
                     </TabsList>
                     
                     <TabsContent value="login" className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Электронная почта</Label>
-                        <Input id="email" type="email" placeholder="your@email.com" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="password">Пароль</Label>
-                        <Input id="password" type="password" />
-                      </div>
-                      <Button className="w-full">Войти</Button>
+                      <form onSubmit={handleLogin}>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="loginEmail">Электронная почта</Label>
+                            <Input 
+                              id="loginEmail" 
+                              type="email" 
+                              placeholder="your@email.com"
+                              value={loginForm.email}
+                              onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="loginPassword">Пароль</Label>
+                            <Input 
+                              id="loginPassword" 
+                              type="password"
+                              value={loginForm.password}
+                              onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+                              required
+                            />
+                          </div>
+                          <Button type="submit" className="w-full">Войти</Button>
+                        </div>
+                      </form>
                     </TabsContent>
                     
                     <TabsContent value="register" className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2 col-span-2">
-                          <Label htmlFor="fullName">ФИО ребенка *</Label>
-                          <Input id="fullName" placeholder="Иванов Иван Иванович" />
+                      <form onSubmit={handleRegister}>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2 col-span-2">
+                            <Label htmlFor="regFullName">ФИО ребенка *</Label>
+                            <Input 
+                              id="regFullName" 
+                              placeholder="Иванов Иван Иванович"
+                              value={registerForm.fullName}
+                              onChange={(e) => setRegisterForm(prev => ({ ...prev, fullName: e.target.value }))}
+                              required
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="regBirthDate">Дата рождения *</Label>
+                            <Input 
+                              id="regBirthDate" 
+                              type="date"
+                              value={registerForm.birthDate}
+                              onChange={(e) => setRegisterForm(prev => ({ ...prev, birthDate: e.target.value }))}
+                              required
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="regFsrId">ID ФШР *</Label>
+                            <Input 
+                              id="regFsrId" 
+                              placeholder="123456"
+                              value={registerForm.fsrId}
+                              onChange={(e) => setRegisterForm(prev => ({ ...prev, fsrId: e.target.value }))}
+                              required
+                            />
+                          </div>
+                          
+                          <div className="space-y-2 col-span-2">
+                            <Label htmlFor="regInstitution">Образовательное учреждение *</Label>
+                            <Input 
+                              id="regInstitution" 
+                              placeholder="МБОУ СОШ №1"
+                              value={registerForm.institution}
+                              onChange={(e) => setRegisterForm(prev => ({ ...prev, institution: e.target.value }))}
+                              required
+                            />
+                          </div>
+                          
+                          <div className="space-y-2 col-span-2">
+                            <Label htmlFor="regCoach">ФИО тренера *</Label>
+                            <Input 
+                              id="regCoach" 
+                              placeholder="Петров Петр Петрович"
+                              value={registerForm.coach}
+                              onChange={(e) => setRegisterForm(prev => ({ ...prev, coach: e.target.value }))}
+                              required
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="regEmail">Электронная почта *</Label>
+                            <Input 
+                              id="regEmail" 
+                              type="email" 
+                              placeholder="parent@email.com"
+                              value={registerForm.email}
+                              onChange={(e) => setRegisterForm(prev => ({ ...prev, email: e.target.value }))}
+                              required
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="regPhone">Телефон представителя *</Label>
+                            <Input 
+                              id="regPhone" 
+                              placeholder="+7 (999) 123-45-67"
+                              value={registerForm.phone}
+                              onChange={(e) => setRegisterForm(prev => ({ ...prev, phone: e.target.value }))}
+                              required
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="regPassword">Пароль *</Label>
+                            <Input 
+                              id="regPassword" 
+                              type="password"
+                              value={registerForm.password}
+                              onChange={(e) => setRegisterForm(prev => ({ ...prev, password: e.target.value }))}
+                              required
+                              minLength={6}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="regConfirmPassword">Подтвердите пароль *</Label>
+                            <Input 
+                              id="regConfirmPassword" 
+                              type="password"
+                              value={registerForm.confirmPassword}
+                              onChange={(e) => setRegisterForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                              required
+                              minLength={6}
+                            />
+                          </div>
                         </div>
                         
-                        <div className="space-y-2">
-                          <Label htmlFor="birthDate">Дата рождения *</Label>
-                          <Input id="birthDate" type="date" />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="fsrId">ID ФШР *</Label>
-                          <Input id="fsrId" placeholder="123456" />
-                        </div>
-                        
-                        <div className="space-y-2 col-span-2">
-                          <Label htmlFor="institution">Образовательное учреждение *</Label>
-                          <Input id="institution" placeholder="МБОУ СОШ №1" />
-                        </div>
-                        
-                        <div className="space-y-2 col-span-2">
-                          <Label htmlFor="coach">ФИО тренера *</Label>
-                          <Input id="coach" placeholder="Петров Петр Петрович" />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="email">Электронная почта *</Label>
-                          <Input id="email" type="email" placeholder="parent@email.com" />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="phone">Телефон представителя *</Label>
-                          <Input id="phone" placeholder="+7 (999) 123-45-67" />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="password">Пароль *</Label>
-                          <Input id="password" type="password" />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="confirmPassword">Подтвердите пароль *</Label>
-                          <Input id="confirmPassword" type="password" />
-                        </div>
-                      </div>
-                      
-                      <Button className="w-full">Зарегистрироваться</Button>
+                        <Button type="submit" className="w-full mt-4">Зарегистрироваться</Button>
+                      </form>
                       <p className="text-sm text-muted-foreground text-center">
                         После регистрации на указанную почту будет отправлено письмо для подтверждения
                       </p>
@@ -363,26 +548,51 @@ const Index = () => {
                 <CardTitle>Напишите нам</CardTitle>
               </CardHeader>
               <CardContent>
-                <form className="space-y-4">
+                <form onSubmit={handleContact} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="contactName">Имя</Label>
-                      <Input id="contactName" placeholder="Ваше имя" />
+                      <Label htmlFor="contactName">Имя *</Label>
+                      <Input 
+                        id="contactName" 
+                        placeholder="Ваше имя"
+                        value={contactForm.name}
+                        onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                        required
+                      />
                     </div>
                     <div>
                       <Label htmlFor="contactPhone">Телефон</Label>
-                      <Input id="contactPhone" placeholder="+7 (999) 123-45-67" />
+                      <Input 
+                        id="contactPhone" 
+                        placeholder="+7 (999) 123-45-67"
+                        value={contactForm.phone}
+                        onChange={(e) => setContactForm(prev => ({ ...prev, phone: e.target.value }))}
+                      />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="contactEmail">Email</Label>
-                    <Input id="contactEmail" type="email" placeholder="your@email.com" />
+                    <Label htmlFor="contactEmail">Email *</Label>
+                    <Input 
+                      id="contactEmail" 
+                      type="email" 
+                      placeholder="your@email.com"
+                      value={contactForm.email}
+                      onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                      required
+                    />
                   </div>
                   <div>
-                    <Label htmlFor="contactMessage">Сообщение</Label>
-                    <Textarea id="contactMessage" placeholder="Ваше сообщение..." rows={4} />
+                    <Label htmlFor="contactMessage">Сообщение *</Label>
+                    <Textarea 
+                      id="contactMessage" 
+                      placeholder="Ваше сообщение..." 
+                      rows={4}
+                      value={contactForm.message}
+                      onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                      required
+                    />
                   </div>
-                  <Button className="w-full">
+                  <Button type="submit" className="w-full">
                     <Icon name="Send" size={16} className="mr-2" />
                     Отправить сообщение
                   </Button>
