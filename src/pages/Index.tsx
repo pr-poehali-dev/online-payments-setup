@@ -143,7 +143,8 @@ const Index = () => {
               />
               <div>
                 <h1 className="text-lg font-semibold text-primary">Мир шахмат</h1>
-                <p className="text-sm text-muted-foreground">Центр поддержки детского шахматного спорта</p>
+                <p className="text-sm text-muted-foreground">Центр поддержки детского 
+шахматного спорта</p>
               </div>
             </div>
             
