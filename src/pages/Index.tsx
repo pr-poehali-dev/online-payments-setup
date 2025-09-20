@@ -150,7 +150,8 @@ const Index = () => {
             
             <div className="hidden md:flex items-center space-x-8">
               <button onClick={() => scrollToSection('home')} className="text-foreground hover:text-primary transition-colors">Главная</button>
-              <button onClick={() => scrollToSection('schedule')} className="text-foreground hover:text-primary transition-colors">Расписание турниров</button>
+              <button onClick={() => window.location.href = '/tournaments'} className="text-foreground hover:text-primary transition-colors">Турниры</button>
+              <button onClick={() => window.location.href = '/users'} className="text-foreground hover:text-primary transition-colors">Участники</button>
               <button onClick={() => scrollToSection('results')} className="text-foreground hover:text-primary transition-colors">Результаты</button>
               <button onClick={() => scrollToSection('awards')} className="text-foreground hover:text-primary transition-colors">Награды</button>
               <button onClick={() => scrollToSection('contacts')} className="text-foreground hover:text-primary transition-colors">Контакты</button>
@@ -344,9 +345,9 @@ const Index = () => {
                 <Icon name="UserPlus" size={20} className="mr-2" />
                 Записаться на занятия
               </Button>
-              <Button variant="outline" size="lg" onClick={() => scrollToSection('schedule')}>
+              <Button variant="outline" size="lg" onClick={() => window.location.href = '/tournaments'}>
                 <Icon name="Calendar" size={20} className="mr-2" />
-                Расписание турниров
+                Все турниры
               </Button>
             </div>
           </div>
